@@ -1,0 +1,120 @@
+{
+  // Keep production logs quiet. Use "info" or "debug" only while diagnosing.
+  "log": {
+    "loglevel": "warning"
+  },
+
+  "inbounds": [
+    {
+      // Human-readable label used in logs.
+      "tag": "vless-reality-in",
+
+      // Listen on all interfaces inside the container. With `network_mode: host`
+      // this exposes the same port on the Mac mini or Ubuntu host.
+      "listen": "0.0.0.0",
+
+      // Public TCP port. 443 blends in best, but it must not conflict with any
+      // local HTTPS server. If your ISP/router blocks 443, use another TCP port.
+      "port": 443,
+
+      // VLESS is the client authentication protocol. REALITY is configured in
+      // streamSettings.security below.
+      "protocol": "vless",
+
+      "settings": {
+        "users": [
+          {
+            // Generate with:
+            // docker run --rm ghcr.io/xtls/xray-core:26.5.9 uuid
+            "id": "__CLIENT_UUID__",
+
+            // XTLS Vision flow. The client must also set this exact flow.
+            "flow": "xtls-rprx-vision",
+
+            // Optional label for your own logs and future multi-user configs.
+            "email": "owner@home"
+          }
+        ],
+
+        // Required by VLESS. Keep this as "none"; REALITY provides transport
+        // security through streamSettings.
+        "decryption": "none"
+      },
+
+      "streamSettings": {
+        // Xray's current REALITY examples use "raw". Many client UIs still call
+        // the same transport "tcp"; use TCP/raw in clients depending on wording.
+        "network": "raw",
+
+        // Enables REALITY instead of normal TLS certificate mode.
+        "security": "reality",
+
+        "realitySettings": {
+          // false avoids verbose REALITY debug output in normal operation.
+          "show": false,
+
+          // REALITY camouflage target. Pick a real TLS site reachable from
+          // your server, normally hostname:443. Xray forwards failed
+          // authentication traffic to this target. Avoid free CDN targets such
+          // as Cloudflare unless you also understand fallback abuse risk and
+          // have added filtering/rate limits.
+          "target": "__REALITY_TARGET_DOMAIN__:443",
+
+          // SNI values clients are allowed to use. Usually one domain matching
+          // the target hostname is enough.
+          "serverNames": [
+            "__REALITY_TARGET_DOMAIN__"
+          ],
+
+          // Private side of `xray x25519`. Never share this with clients.
+          "privateKey": "__REALITY_PRIVATE_KEY__",
+
+          // Optional short ID in hex. 8 bytes / 16 hex chars is a common choice.
+          // Generate with: openssl rand -hex 8
+          "shortIds": [
+            "__REALITY_SHORT_ID_HEX__"
+          ]
+        }
+      },
+
+      "sniffing": {
+        // Helps Xray route based on original destination metadata.
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls",
+          "quic"
+        ],
+        "routeOnly": true
+      }
+    }
+  ],
+
+  "outbounds": [
+    {
+      // Normal traffic exits from the home machine's network.
+      "tag": "direct",
+      "protocol": "freedom"
+    },
+    {
+      // Used by the routing rule below.
+      "tag": "blocked",
+      "protocol": "blackhole"
+    }
+  ],
+
+  "routing": {
+    "domainStrategy": "AsIs",
+    "rules": [
+      {
+        // Conservative default: do not let BitTorrent exit through the home VPN.
+        // Remove this only if you intentionally want that traffic.
+        "type": "field",
+        "protocol": [
+          "bittorrent"
+        ],
+        "outboundTag": "blocked"
+      }
+    ]
+  }
+}

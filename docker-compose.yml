@@ -1,0 +1,20 @@
+services:
+  xray:
+    image: ${XRAY_IMAGE:-ghcr.io/xtls/xray-core:26.5.9}
+    container_name: xray-vless-reality
+    restart: unless-stopped
+
+    # OrbStack on macOS supports host networking out of the box.
+    # Docker Engine on Ubuntu/Linux also supports host networking.
+    # In host mode, `ports:` is intentionally not used; Xray binds the host port
+    # declared in config/xray/server.json.
+    network_mode: host
+
+    volumes:
+      # Runtime config. Copy config/xray/server.template.json to this path and
+      # replace placeholders before starting.
+      - ./config/xray/server.json:/etc/xray/config.json:ro
+
+    # The official image entrypoint is xray. Keep the command explicit so the
+    # compose file documents the config path it uses.
+    command: run -config /etc/xray/config.json

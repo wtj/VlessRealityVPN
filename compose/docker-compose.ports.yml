@@ -1,0 +1,16 @@
+services:
+  xray:
+    image: ${XRAY_IMAGE:-ghcr.io/xtls/xray-core:26.5.9}
+    container_name: xray-vless-reality
+    restart: unless-stopped
+
+    # Fallback for macOS/OrbStack troubleshooting when you want explicit port
+    # publishing instead of host networking. Keep host IP at 0.0.0.0 so router
+    # port forwarding can reach the service through the Mac mini LAN address.
+    ports:
+      - "0.0.0.0:443:443/tcp"
+
+    volumes:
+      - ./config/xray/server.json:/etc/xray/config.json:ro
+
+    command: run -config /etc/xray/config.json
