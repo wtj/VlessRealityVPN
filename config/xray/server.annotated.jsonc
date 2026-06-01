@@ -25,7 +25,7 @@
         "users": [
           {
             // Generate with:
-            // docker run --rm ghcr.io/xtls/xray-core:26.5.9 uuid
+            // docker run --rm --entrypoint xray ghcr.io/xtls/xray-core:26.5.9 uuid
             "id": "__CLIENT_UUID__",
 
             // XTLS Vision flow. The client must also set this exact flow.

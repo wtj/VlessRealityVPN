@@ -6,7 +6,7 @@
 - Docker Engine 與 Compose plugin 可用。
 - Linux firewall 允許 TCP 443。
 - `config/xray/server.json` 已替換所有 placeholder。
-- `docker compose run --rm xray test -config /etc/xray/config.json` 通過。
+- `docker compose run --rm xray run -test -config /etc/xray/config.json` 通過。
 - 外網 client 可連線。
 
 ## 1. Install Docker Engine
@@ -32,8 +32,8 @@ cp config/xray/server.template.json config/xray/server.json
 ## 3. Generate Secrets
 
 ```sh
-docker run --rm ghcr.io/xtls/xray-core:26.5.9 uuid
-docker run --rm ghcr.io/xtls/xray-core:26.5.9 x25519
+docker run --rm --entrypoint xray ghcr.io/xtls/xray-core:26.5.9 uuid
+docker run --rm --entrypoint xray ghcr.io/xtls/xray-core:26.5.9 x25519
 openssl rand -hex 8
 ```
 
@@ -79,7 +79,7 @@ sudo ufw status verbose
 
 ```sh
 docker compose pull
-docker compose run --rm xray test -config /etc/xray/config.json
+docker compose run --rm xray run -test -config /etc/xray/config.json
 docker compose up -d
 docker compose ps
 docker compose logs -f xray

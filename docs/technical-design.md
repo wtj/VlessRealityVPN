@@ -105,7 +105,7 @@ vless://CLIENT_UUID@YOUR_PUBLIC_HOST:443?encryption=none&flow=xtls-rprx-vision&s
 
 ```sh
 # Validate config before start or restart.
-docker compose run --rm xray test -config /etc/xray/config.json
+docker compose run --rm xray run -test -config /etc/xray/config.json
 
 # Start in background.
 docker compose up -d

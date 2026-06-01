@@ -1,3 +1,5 @@
 config/xray/server.json
 .env
 .DS_Store
+bak/
+*.bak

@@ -18,3 +18,39 @@ services:
     # The official image entrypoint is xray. Keep the command explicit so the
     # compose file documents the config path it uses.
     command: run -config /etc/xray/config.json
+
+  namecheap-ddns:
+    build:
+      context: .
+      dockerfile: docker/namecheap-ddns.Dockerfile
+    container_name: namecheap-ddns
+    restart: unless-stopped
+    profiles:
+      - ddns
+    environment:
+      # Feature flag. Keep false when this deployment does not use Namecheap
+      # Dynamic DNS, even if the ddns profile is accidentally started.
+      DDNS_ENABLED: ${DDNS_ENABLED:-false}
+
+      # Namecheap Dynamic DNS host. Use "@" for the bare domain, or only the
+      # subdomain label such as "vpn" for vpn.example.com.
+      NAMECHEAP_DDNS_HOST: ${NAMECHEAP_DDNS_HOST:-}
+
+      # Registered domain at Namecheap, for example "example.com".
+      NAMECHEAP_DDNS_DOMAIN: ${NAMECHEAP_DDNS_DOMAIN:-}
+
+      # Dynamic DNS password from Namecheap Advanced DNS. This is not your
+      # Namecheap account password.
+      NAMECHEAP_DDNS_PASSWORD: ${NAMECHEAP_DDNS_PASSWORD:-}
+
+      # Optional explicit IP. Leave empty to let Namecheap use the request IP.
+      NAMECHEAP_DDNS_IP: ${NAMECHEAP_DDNS_IP:-}
+
+      # Cron expression. Default: every 15 minutes.
+      NAMECHEAP_DDNS_CRON: ${NAMECHEAP_DDNS_CRON:-*/15 * * * *}
+
+      # Keep default unless Namecheap changes the endpoint.
+      NAMECHEAP_DDNS_ENDPOINT: ${NAMECHEAP_DDNS_ENDPOINT:-https://dynamicdns.park-your-domain.com/update}
+
+      # Set true to validate container wiring without sending the update.
+      NAMECHEAP_DDNS_DRY_RUN: ${NAMECHEAP_DDNS_DRY_RUN:-false}

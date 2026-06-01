@@ -52,7 +52,7 @@ OrbStack 重點是 `network_mode: host`。在 OrbStack 上，container 可以直
 
 - 啟動服務：`docker compose up -d`
 - fallback 啟動：`docker compose --project-directory . -f compose/docker-compose.ports.yml up -d`
-- 檢查設定：`docker compose run --rm xray test -config /etc/xray/config.json`
+- 檢查設定：`docker compose run --rm xray run -test -config /etc/xray/config.json`
 - 看 log：`docker compose logs -f xray`
 - 修改 server 設定：`config/xray/server.json`
 
@@ -65,7 +65,7 @@ OrbStack 重點是 `network_mode: host`。在 OrbStack 上，container 可以直
 3. `cp config/xray/server.template.json config/xray/server.json`
 4. 用 runbook 產生 UUID、REALITY keypair、short ID，替換 `server.json` 的 placeholder。
 5. 確認 router/DDNS/port forwarding。
-6. `docker compose run --rm xray test -config /etc/xray/config.json`
+6. `docker compose run --rm xray run -test -config /etc/xray/config.json`
 7. `docker compose up -d`
 8. 從 LAN 另一台設備與手機行動網路各測一次。
 9. 若 OrbStack host network 在你的環境無法被 LAN/WAN 打到，改用 `compose/docker-compose.ports.yml` fallback。
@@ -77,6 +77,7 @@ OrbStack 重點是 `network_mode: host`。在 OrbStack 上，container 可以直
 - [macOS + OrbStack runbook](docs/runbook-macos-orbstack.md)
 - [Ubuntu + Docker Engine runbook](docs/runbook-ubuntu-docker.md)
 - [Client 選型](docs/clients.md)
+- [Namecheap Dynamic DNS container](docs/namecheap-ddns.md)
 
 ## 來源
 

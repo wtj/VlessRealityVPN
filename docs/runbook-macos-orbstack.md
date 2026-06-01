@@ -6,7 +6,7 @@
 - Router 外部 TCP 443 轉到 Mac mini LAN IP 的 TCP 443。
 - OrbStack 可執行 Docker/Compose。
 - `config/xray/server.json` 已替換所有 placeholder。
-- `docker compose run --rm xray test -config /etc/xray/config.json` 通過。
+- `docker compose run --rm xray run -test -config /etc/xray/config.json` 通過。
 - 外網 client 可用 VLESS REALITY 連線。
 
 ## 0. Prerequisites
@@ -61,13 +61,13 @@ COMPOSE_PROJECT_NAME=vless-reality-vpn
 產生 client UUID：
 
 ```sh
-docker run --rm ghcr.io/xtls/xray-core:26.5.9 uuid
+docker run --rm --entrypoint xray ghcr.io/xtls/xray-core:26.5.9 uuid
 ```
 
 產生 REALITY X25519 keypair：
 
 ```sh
-docker run --rm ghcr.io/xtls/xray-core:26.5.9 x25519
+docker run --rm --entrypoint xray ghcr.io/xtls/xray-core:26.5.9 x25519
 ```
 
 輸出會包含 `Private key` 與 `Public key`：
@@ -144,6 +144,33 @@ Internal port: 443
 
 只需要 TCP。這份 VLESS REALITY 設定不是 WireGuard，不需要 UDP port。
 
+### macOS privileged port workaround
+
+macOS 對 `443` 這種小於 1024 的 privileged port 可能會回 `bind: permission denied`，尤其是 OrbStack host network 模式下。不要為了這件事把整個 Docker daemon 或 Xray 用 root 權限硬跑；比較簡單穩定的做法是：
+
+```text
+Xray on Mac mini listens on TCP 8443
+Router forwards WAN TCP 443 -> Mac mini LAN IP TCP 8443
+Client still connects to YOUR_PUBLIC_HOST:443
+```
+
+也就是說，改 `config/xray/server.json`：
+
+```json
+"port": 8443
+```
+
+router port forwarding 改成：
+
+```text
+Protocol: TCP
+External port: 443
+Internal IP: Mac mini LAN IP, e.g. 192.168.1.20
+Internal port: 8443
+```
+
+client link 如果是從外網連回家，仍然使用 `:443`，因為外部看到的是 router 的 WAN port 443。只有在你直接從 LAN 連 Mac mini `192.168.1.20` 測試時，才需要連 `8443`。
+
 如果 TCP 443 已被 NAS、Caddy、Nginx 或 router 管理介面使用，先停掉衝突服務，或改用其他 port。若改 port，要同步改：
 
 - `config/xray/server.json` 的 inbound `port`
@@ -173,7 +200,7 @@ docker compose pull
 檢查設定：
 
 ```sh
-docker compose run --rm xray test -config /etc/xray/config.json
+docker compose run --rm xray run -test -config /etc/xray/config.json
 ```
 
 通過後再啟動：
