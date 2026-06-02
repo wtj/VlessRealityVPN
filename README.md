@@ -58,6 +58,14 @@ OrbStack 重點是 `network_mode: host`。在 OrbStack 上，container 可以直
 
 ## 快速開始
 
+互動式 wizard：
+
+```sh
+scripts/quick-setup.sh
+```
+
+這支 script 可以重複執行；它會讀取現有 `.env` 和 `config/xray/server.json` 當預設值，逐項解釋用途，再更新設定。
+
 先看 Mac mini runbook：
 
 1. 安裝 OrbStack 並確認 `docker version` 可用。
@@ -74,6 +82,7 @@ OrbStack 重點是 `network_mode: host`。在 OrbStack 上，container 可以直
 ## 文件入口
 
 - [技術文件](docs/technical-design.md)
+- [互動式 quick setup wizard](docs/quick-setup.md)
 - [macOS + OrbStack runbook](docs/runbook-macos-orbstack.md)
 - [Ubuntu + Docker Engine runbook](docs/runbook-ubuntu-docker.md)
 - [Client 選型](docs/clients.md)
